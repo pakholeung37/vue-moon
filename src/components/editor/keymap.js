@@ -30,9 +30,12 @@ export function buildKeymap(schema, mapKeys) {
     type;
 
   function bind(key, cmd) {
-    let mapped = mapKeys[key];
-    if (mapKeys && mapKeys[key]) keys[mapped] = cmd;
-    else return;
+    if (mapKeys) {
+      let mapped = mapKeys[key];
+      if (mapped === false) return;
+      if (mapped) key = mapped;
+    }
+    keys[key] = cmd;
   }
 
   bind('Mod-z', undo);
