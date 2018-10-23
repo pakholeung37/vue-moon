@@ -29,8 +29,8 @@ export default {
   margin: 0 0.3em;
 
   & .icon-svg {
-  width: 100%;
-  height: 100%;
+  width: 1em;
+  height: 1em;
   display: inline-block;
   vertical-align: top;
 }

@@ -3,39 +3,57 @@
     <div class="menubar">
       <button
         class="menubar-btn"
-        disabled
+        :class="{active:isBoldActived}"
+        :disabled="!isBoldEnabled"
+        @click="exec(menuItems.boldItem)"
         >
         <icon name="bold"></icon>
       </button>
       <button
         class="menubar-btn"
+        :class="{active:isItalicActived}"
+        :disabled="!isItalicEnabled"
+        @click="exec(menuItems.italicItem)"
         >
         <icon name="italic"></icon>
       </button>
       <button
-        class="menubar-btn">
+        class="menubar-btn"
+        :class="{active:isStrikeActived}"
+        :disabled="!isStrikeEnabled"
+        @click="exec(menuItems.strikeItem)"
+        >
         <icon name="strike"></icon>
       </button>
       <button
-        class="menubar-btn">
-        <icon name="underline"></icon>
+        class="menubar-btn"
+        :class="{active:isUnderlineActived}"
+        :disabled="!isUnderlineEnabled"
+        @click="exec(menuItems.underlineItem)"
+        >
+        <icon name="underline"
+        ></icon>
       </button>
       <button
         class="menubar-btn"
+        :class="{active:isCodeActived}"
+        :disabled="!isCodeEnabled"
+        @click="exec(menuItems.codeItem)"
         >
         <icon name="code"></icon>
       </button>
       <button
-        class="menubar-btn">
-        <icon name="paragraph"></icon>
+        class="menubar-btn"
+        >
+        <icon name="heading"></icon>
       </button>
       <button
         class="menubar-btn">
-        <icon name="ul"></icon>
+        <icon name="bulletlist"></icon>
       </button>
       <button
         class="menubar-btn">
-        <icon name="ol"></icon>
+        <icon name="orderlist"></icon>
       </button>
       <button
         class="menubar-btn">
@@ -74,25 +92,42 @@ export default {
     }
   },
   computed: {
-    isRedoEnabled: function() {
-      console.log('compute it');
-      return !!this.menuItems.redoItem && !!this.menuItems.redoItem.enabled;
-    },
-    isUndoEnabled: function() {
-      return !!this.menuItems.undoItem && !!this.menuItems.undoItem.enabled;
-    }
+    // Bold
+    isBoldActived: ASEfactory('bold', 'actived'),
+    isBoldEnabled: ASEfactory('bold', 'enabled'),
+    // Italic
+    isItalicActived: ASEfactory('italic', 'actived'),
+    isItalicEnabled: ASEfactory('italic', 'enabled'),
+    // Italic
+    isItalicActived: ASEfactory('italic', 'actived'),
+    isItalicEnabled: ASEfactory('italic', 'enabled'),
+    // Strike
+    isStrikeActived: ASEfactory('strike', 'actived'),
+    isStrikeEnabled: ASEfactory('strike', 'enabled'),
+    // Underline
+    isUnderlineActived: ASEfactory('underline', 'actived'),
+    isUnderlineEnabled: ASEfactory('underline', 'enabled'),
+    // Code
+    isCodeActived: ASEfactory('code', 'actived'),
+    isCodeEnabled: ASEfactory('code', 'enabled'),
+    // redo and undo
+    isRedoEnabled: ASEfactory('redo', 'enabled'),
+    isUndoEnabled: ASEfactory('undo', 'enabled'),
   },
   mounted() {
     let {
       view,
       schema,
-      commands,
       menuItems } = createEditor(this.$el, this.getDocFromSlot());
     this.view = view;
     this.schema = schema;
-    this.commands = commands;
     this.menuItems = menuItems;
     this.clearContentSlot();
+  },
+  beforeDestroyed() {
+    if (this.view) {
+				this.view.destroy()
+		}
   },
   methods: {
     // 清除用于构造editor的content slot,只能算是一种hack,并没有真正清理Vnode
@@ -106,14 +141,19 @@ export default {
     },
     exec(item) {
       //excute function when it is ready;
+      console.log(item);
       let view = this.view;
       view.focus();
-      let state = this.state;
-      if(item && item.run) console.log(item.run,state,view),item.run(view.state, view.dispatch, view);
+      if(item && item.run) item.run(view.state, view.dispatch, view);
       return this;
-    }
+    },
   },
-  
+}
+// Actived, select, enable方法工厂
+function ASEfactory(prefix, tag){
+  return function() {
+    return !!this.menuItems[`${prefix}Item`] && !!this.menuItems[`${prefix}Item`][tag];
+  }
 }
 </script>
 <style lang="scss" scoped>
@@ -142,8 +182,8 @@ export default {
     background: transparent;
     border: 0;
     color: black;
-    padding: 0.8rem 0.5rem;
-    margin-right: 0.2rem;
+    padding: 0.5rem 0.3em;
+    margin: 0.2em 0.2rem;
     border-radius: 3px;
     cursor: pointer;
     outline: none;
@@ -157,7 +197,7 @@ export default {
       background-color: rgba(black, 0.05);
     }
 
-    &.is-active {
+    &.active {
       background-color: rgba(black, 0.1);
       outline: none;
     }

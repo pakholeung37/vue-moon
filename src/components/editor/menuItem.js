@@ -1,4 +1,6 @@
 import { undo, redo } from 'prosemirror-history';
+import { toggleMark } from 'prosemirror-commands';
+import { schema }from './schema';
 
 // 我设计menuItem的初衷是为了能让图标变得相应式的,在view层调用dispatchtransaction
 // 同时可以为每个MenuItem更新它的值, 然后通过vue的单项绑定, 更新按钮的状态, 
@@ -28,12 +30,29 @@ import { undo, redo } from 'prosemirror-history';
 //  selected -> bool : 返回该item是否可见 对应 dispaly : ?? || none
 //  enabled -> bool : 返回该item是否可选  对应 diabled || ??
 //  actived -> bool : 返回该item是否激活 对应 class= ??||"actived"
+
+//  MenuItemSpec:: interface
+//  spec参数传递给MenuItem constructor
+//
+//  run:: (EditorState, (Transaction), ?EditorView, ?dom.Event)
+//  执行函数当menuitem actived
+//
+//  select:: ?(EditorState) -> bool
+//  optional 决定是否可select的函数
+//
+//  enable:: ?(EditorState) -> bool
+//  optional 决定时候enable的函数
+//
+//  active:: ?(EditorState) -> bool
+//  optional 决定是否active的函数
+//
+
 export class MenuItem {
   constructor(spec) {
     this.spec = spec;
-    this.selected = false;
+    this.selected = true;
     this.actived = false;
-    this.enabled = false;
+    this.enabled = true;
     this.run = spec.run;
   }
   update(state) {
@@ -54,33 +73,39 @@ export class MenuItem {
   }
   isActived(state) {
     if (!this.spec.active) return false;
-    let actived = this.enabled(state) && this.spec.active(state) || false;
+    let actived = this.enabled && this.spec.active(state) || false;
     return !!actived;
   }
 }
 
-//  MenuItemSpec:: interface
-//  spec参数传递给MenuItem constructor
-//
-//  run:: (EditorState, (Transaction), ?EditorView, ?dom.Event)
-//  执行函数当menuitem actived
-//
-//  select:: ?(EditorState) -> bool
-//  optional 决定是否可select的函数
-//
-//  enable:: ?(EditorState) -> bool
-//  optional 决定时候enable的函数
-//
-//  active:: ?(EditorState) -> bool
-//  optional 决定是否active的函数
-//
+function markActive(state, type) {
+  let {from, $from, to, empty} = state.selection
+  if (empty) return type.isInSet(state.storedMarks || $from.marks())
+  else return state.doc.rangeHasMark(from, to, type)
+}
 
+function markItem(markType) {
+  let cmd = toggleMark(markType);
+  return new MenuItem({
+    run: cmd,
+    active: state => markActive(state, markType),
+    enable: state => cmd(state),
+  });
+}
+
+/*  */
 export let undoItem = new MenuItem({
   run: undo,
   enable: state => undo(state),
-})
+});
 
 export let redoItem = new MenuItem({
   run: redo,
   enable: state => redo(state),
-})
+});
+
+export let boldItem = markItem(schema.marks.strong);
+export let italicItem = markItem(schema.marks.em);
+export let codeItem = markItem(schema.marks.code);
+export let underlineItem = markItem(schema.marks.underline);
+export let strikeItem = markItem(schema.marks.strike);

@@ -15,9 +15,8 @@ class MenuBarView {
     this.editorView = editorView;
   }
 
-  update(editorView, prevState){
+  update(){
     // 永远使用新的state来更新!!
-    console.log(editorView.state, prevState);
     Object.values(this.menuItems).map(item => item.update(this.editorView.state));
   }
   destroy() {

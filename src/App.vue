@@ -3,18 +3,31 @@
     <div class="container">
       <editor class="editor">
         <div slot="content">
-          <h3>Hello ProseMirror</h3>
-          <p>This is editable text. You can focus it and start typing.</p>
-          <p>To apply styling, you can select a piece of text and manipulate
-          its styling from the menu. The basic schema
-          supports <em>emphasis</em>, <strong>strong
-          text</strong>, <a href="http://marijnhaverbeke.nl/blog">links</a>, <code>code
-          font</code>, and images.</p>
-          <p>Block-level structure can be manipulated with key bindings (try
-          ctrl-shift-2 to create a level 2 heading, or enter in an empty
-          textblock to exit the parent block), or through the menu.</p>
-          <p>Try using the “list” item in the menu to wrap this paragraph in
-          a numbered list.</p>
+          <h1>This is h1</h1>
+          <h2>This is h2</h2>
+          <h3>This is h3</h3>
+          <h4>This is h4</h4>
+          <h5>This is h5</h5>
+          <h6>This is h6</h6>
+          <p><u>this is under line.</u></p>          
+          <p><strong>this is bold.</strong></p>
+          <p><em>this is italic</em></p>
+          <p><code>this is code.</code></p>
+          <p>example paragraph, Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Sed posuere consectetur est at lobortis. Cras mattis consectetur purus sit amet fermentum.</p>
+          <blockquote><p><strong> strong in block quote. Nullam quis risus eget urna mollis ornare vel eu leo.</strong> Nullam id dolor id nibh ultricies vehicula ut id elit.</p></blockquote>
+          <pre><code>code Block</code></pre>
+          <p>Donec ullamcorper nulla non metus auctor fringilla. Nulla vitae elit libero, a pharetra augue.</p>
+          <ol>
+            <li>Vestibulum id ligula porta felis euismod semper.</li>
+            <li>Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</li>
+            <li>Maecenas sed diam eget risus varius blandit sit amet non magna.</li>
+          </ol>
+          <p>Donec ullamcorper nulla non metus auctor fringilla. Nulla vitae elit libero, a pharetra augue.</p>
+          <ul>
+            <li>Praesent commodo cursus magna, vel scelerisque nisl consectetur et.</li>
+            <li>Donec id elit non mi porta gravida at eget metus.</li>
+            <li>Nulla vitae elit libero, a pharetra augue.</li>
+          </ul>
         </div>
       </editor>
     </div>
@@ -36,7 +49,7 @@ export default {
 .editor {
   margin: 20px auto;
   max-width: 720px;
-  & .input-frame {
+  & .ProseMirror {
   outline: none;
 }
 }

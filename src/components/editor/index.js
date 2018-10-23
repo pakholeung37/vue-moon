@@ -1,39 +1,66 @@
 import { EditorState } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 import { DOMParser } from 'prosemirror-model';
-import schema from './schema';
-import { createToggle } from './commands';
-import { undoItem, redoItem } from './menuItem';
+import { schema } from './schema';
+import { 
+  undoItem,
+  redoItem,
+  boldItem,
+  italicItem,
+  codeItem,
+  strikeItem,
+  underlineItem,
+} from './menuItem';
 import { createMenuBarPlugin } from './menubar';
+import { createBasePlugins } from './plugins';
 
 export function createEditor(root, dom) { 
-  
-  // // 创建一堆commands
-  // let commands = {};
-  // let marks = [schema.marks.strong, schema.marks.code, schema.marks.em];
-  // commands = marks.reduce((commands, mark) => ({
-  //   ...commands,
-  //   [`toggle${mark.name.replace(/^./, _=>_.toUpperCase())}`]: createToggle({ mark, view }),
-  // }),{});
-  // 创建一堆menuItem
-  let menuItems = { undoItem, redoItem };
+  let menuItems = { 
+    undoItem,
+    redoItem,
+    boldItem,
+    italicItem,
+    codeItem,
+    strikeItem,
+    underlineItem,
+  }
+  // menubarPlugins主要是负责menuItem状态更新的任务
   let menuBarPlugins = createMenuBarPlugin(menuItems);
   // 创建Editor state and view
-  let plugins = createPlugins({ schema });
+  let plugins = createBasePlugins({ schema });
   plugins.push(menuBarPlugins);
-  let state = EditorState.create({ 
-    schema,
+
+  let editor = new Editor({
+    menuItems,
     plugins,
-    doc: DOMParser.fromSchema(schema).parse(dom),
-  });
-  let view = new EditorView(root, { 
-    state,
-  });
-  return { schema, view, menuItems };
+    root,
+    dom,
+    schema,
+  })
+
+  return editor;
 }
 
-class editor {
-  constructor(root, dom) {
-    
+// spec interface
+//  menuItems (required) menuItems用于初始化
+//  Plugins 用于初始化的Plugins
+//  root 用于初始化的跟元素, default: document.body
+//  dom 用于初始化的doc文档 default: ''
+//  schema (required) 用于初始化的schema,
+class Editor {
+  constructor(spec) {
+    this.root = spec.root || document.body;
+    this.dom = spec.dom || '';
+    this.menuItems = spec.menuItems;
+    this.schema = spec.schema;
+    this.plugins = spec.plugins || [];
+
+    this.state = EditorState.create({
+      schema: this.schema,
+      plugins: this.plugins,
+      doc: DOMParser.fromSchema(this.schema).parse(this.dom),
+    })
+
+    this.view = new EditorView(this.root, { state: this.state })
   }
 }
