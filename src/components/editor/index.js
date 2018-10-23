@@ -2,42 +2,38 @@ import { EditorState } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 import { DOMParser } from 'prosemirror-model';
 import schema from './schema';
+import { createToggle } from './commands';
+import { undoItem, redoItem } from './menuItem';
+import { createMenuBarPlugin } from './menubar';
 
 export function createEditor(root, dom) { 
+  
+  // // 创建一堆commands
+  // let commands = {};
+  // let marks = [schema.marks.strong, schema.marks.code, schema.marks.em];
+  // commands = marks.reduce((commands, mark) => ({
+  //   ...commands,
+  //   [`toggle${mark.name.replace(/^./, _=>_.toUpperCase())}`]: createToggle({ mark, view }),
+  // }),{});
+  // 创建一堆menuItem
+  let menuItems = { undoItem, redoItem };
+  let menuBarPlugins = createMenuBarPlugin(menuItems);
+  // 创建Editor state and view
+  let plugins = createPlugins({ schema });
+  plugins.push(menuBarPlugins);
   let state = EditorState.create({ 
     schema,
+    plugins,
     doc: DOMParser.fromSchema(schema).parse(dom),
-    plugins: createPlugins({ schema }),
   });
   let view = new EditorView(root, { 
     state,
   });
-
-  return { state, schema, view };
+  return { schema, view, menuItems };
 }
 
-import { keymap } from 'prosemirror-keymap';
-import { history } from 'prosemirror-history';
-import {baseKeymap} from 'prosemirror-commands';
-import { Plugin } from 'prosemirror-state';
-import {dropCursor} from 'prosemirror-dropcursor';
-import {gapCursor} from 'prosemirror-gapcursor';
-
-import {buildKeymap} from "./keymap";
-import {buildInputRules} from "./inputrules";
-/**
- *组装插件
- *
- */
-function createPlugins({schema, mapKeys}) {
-  let plugins = [
-    buildInputRules(schema),
-    keymap(buildKeymap(schema, mapKeys)),
-    keymap(baseKeymap),
-    dropCursor(),
-    gapCursor(),
-    history(),
-  ];
-  return plugins;
-
+class editor {
+  constructor(root, dom) {
+    
+  }
 }
