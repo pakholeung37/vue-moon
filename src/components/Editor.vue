@@ -34,6 +34,33 @@
         <icon name="underline"
         ></icon>
       </button>
+      
+      <button
+        class="menubar-btn"
+        :class="{active:isHeadingActived}"
+        :disabled="!isHeadingEnabled"
+        @click="exec(menuItems.headingItem)"
+        >
+        <icon name="heading"></icon>
+      </button>
+      <button
+        class="menubar-btn"
+        :class="{active:isLinkActived}"
+        :disabled="!isLinkEnabled"
+        @click="showLinkPrompt(menuItems.linkItem)">
+        <icon name="link"></icon>
+      </button>
+      <button
+        class="menubar-btn">
+        <icon name="photo"></icon>
+      </button>
+      <button
+        class="menubar-btn"
+        :class="{active:isBlockQuoteActived}"
+        :disabled="!isBlockQuoteEnabled"
+        @click="exec(menuItems.blockQuoteItem)">
+        <icon name="blockquote"></icon>
+      </button>
       <button
         class="menubar-btn"
         :class="{active:isCodeActived}"
@@ -44,20 +71,18 @@
       </button>
       <button
         class="menubar-btn"
-        >
-        <icon name="heading"></icon>
-      </button>
-      <button
-        class="menubar-btn">
+        :class="{active:isBulletListActived}"
+        :disabled="!isBulletListEnabled"
+        @click="exec(menuItems.bulletListItem)">
         <icon name="bulletlist"></icon>
       </button>
       <button
-        class="menubar-btn">
+        class="menubar-btn"
+        :class="{active:isOrderListActived}"
+        :disabled="!isOrderListEnabled"
+        @click="exec(menuItems.orderListItem)"
+        >
         <icon name="orderlist"></icon>
-      </button>
-      <button
-        class="menubar-btn">
-        <icon name="quote"></icon>
       </button>
       <button
         class="menubar-btn"
@@ -71,7 +96,6 @@
         :disabled="!isRedoEnabled">
         <icon name="redo"></icon>
       </button>
-      
     </div>
    <slot name="content"></slot>
   </div>
@@ -98,18 +122,30 @@ export default {
     // Italic
     isItalicActived: ASEfactory('italic', 'actived'),
     isItalicEnabled: ASEfactory('italic', 'enabled'),
-    // Italic
-    isItalicActived: ASEfactory('italic', 'actived'),
-    isItalicEnabled: ASEfactory('italic', 'enabled'),
     // Strike
     isStrikeActived: ASEfactory('strike', 'actived'),
     isStrikeEnabled: ASEfactory('strike', 'enabled'),
     // Underline
     isUnderlineActived: ASEfactory('underline', 'actived'),
     isUnderlineEnabled: ASEfactory('underline', 'enabled'),
+    // Heading
+    isHeadingActived: ASEfactory('heading', 'actived'),
+    isHeadingEnabled: ASEfactory('heading', 'enabled'),
+    // BlockQuote
+    isBlockQuoteActived: ASEfactory('blockQuote', 'actived'),
+    isBlockQuoteEnabled: ASEfactory('blockQuote', 'enabled'),
     // Code
     isCodeActived: ASEfactory('code', 'actived'),
     isCodeEnabled: ASEfactory('code', 'enabled'),
+    // Link
+    isLinkActived: ASEfactory('link', 'actived'),
+    isLinkEnabled: ASEfactory('link', 'enabled'),
+    // bulletListItem
+    isBulletListActived: ASEfactory('bulletList', 'actived'),
+    isBulletListEnabled: ASEfactory('bulletList', 'enabled'),
+    // orderListItem
+    isOrderListActived: ASEfactory('orderList', 'actived'),
+    isOrderListEnabled: ASEfactory('orderList', 'enabled'),
     // redo and undo
     isRedoEnabled: ASEfactory('redo', 'enabled'),
     isUndoEnabled: ASEfactory('undo', 'enabled'),
@@ -123,10 +159,11 @@ export default {
     this.schema = schema;
     this.menuItems = menuItems;
     this.clearContentSlot();
+    this.view.focus();
   },
   beforeDestroyed() {
     if (this.view) {
-				this.view.destroy()
+			this.view.destroy()
 		}
   },
   methods: {
@@ -147,11 +184,23 @@ export default {
       if(item && item.run) item.run(view.state, view.dispatch, view);
       return this;
     },
+    showLinkPrompt(item) {
+      console.log(item);
+      if(item.actived) item.run(this.view.state, this.view.dispatch, { href: ''});
+      else {
+        const href = prompt('link to:');
+        if (href !== null) {
+          item.run(this.view.state, this.view.dispatch, { href });
+        }
+        this.view.focus();
+      }
+		},
   },
 }
 // Actived, select, enable方法工厂
 function ASEfactory(prefix, tag){
   return function() {
+    // if(this.menuItems[`${prefix}Item`]) console.log(prefix, tag ,this.menuItems[`${prefix}Item`]);
     return !!this.menuItems[`${prefix}Item`] && !!this.menuItems[`${prefix}Item`][tag];
   }
 }
@@ -160,7 +209,7 @@ function ASEfactory(prefix, tag){
 .menubar {
 
   display: flex;
-  margin-bottom: 1rem;
+  margin-bottom: 1em;
   transition: visibility 0.2s 0.4s, opacity 0.2s 0.4s;
   border: solid rgba($color: #000000, $alpha: 0.1);
   border-width: 1px 0px;
@@ -182,7 +231,8 @@ function ASEfactory(prefix, tag){
     background: transparent;
     border: 0;
     color: black;
-    padding: 0.5rem 0.3em;
+    line-height: 20px;
+    padding: 0.3rem 0.3em;
     margin: 0.2em 0.2rem;
     border-radius: 3px;
     cursor: pointer;
@@ -197,12 +247,14 @@ function ASEfactory(prefix, tag){
       background-color: rgba(black, 0.05);
     }
 
-    &.active {
-      background-color: rgba(black, 0.1);
-      outline: none;
+    &.active .icon /deep/ .icon-svg {
+      fill: rgba($color: #2169ee, $alpha: 1.0);
     }
   }
 }
 
+modal-content {
+  padding: 30px auto;
 
+}
 </style>

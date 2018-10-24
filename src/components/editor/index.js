@@ -10,6 +10,11 @@ import {
   codeItem,
   strikeItem,
   underlineItem,
+  bulletListItem,
+  orderListItem,
+  headingItem,
+  blockQuoteItem,
+  linkItem,
 } from './menuItem';
 import { createMenuBarPlugin } from './menubar';
 import { createBasePlugins } from './plugins';
@@ -23,6 +28,11 @@ export function createEditor(root, dom) {
     codeItem,
     strikeItem,
     underlineItem,
+    bulletListItem,
+    orderListItem,
+    headingItem,
+    blockQuoteItem,
+    linkItem,
   }
   // menubarPlugins主要是负责menuItem状态更新的任务
   let menuBarPlugins = createMenuBarPlugin(menuItems);

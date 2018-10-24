@@ -1,5 +1,8 @@
 import { undo, redo } from 'prosemirror-history';
-import { toggleMark } from 'prosemirror-commands';
+import { toggleMark, setBlockType, wrapIn, lift } from 'prosemirror-commands';
+import { wrapInList, liftListItem } from 'prosemirror-schema-list';
+import { findParentNode } from 'prosemirror-utils'
+
 import { schema }from './schema';
 
 // 我设计menuItem的初衷是为了能让图标变得相应式的,在view层调用dispatchtransaction
@@ -77,7 +80,7 @@ export class MenuItem {
     return !!actived;
   }
 }
-
+// 处理markItem, 决定markItem是否可用
 function markActive(state, type) {
   let {from, $from, to, empty} = state.selection
   if (empty) return type.isInSet(state.storedMarks || $from.marks())
@@ -93,7 +96,110 @@ function markItem(markType) {
   });
 }
 
-/*  */
+
+// 处理node决定node是否可用
+function nodeActive(state, type, attrs) {
+	const predicate = node => node.type === type;
+	const parent = findParentNode(predicate)(state.selection);
+	if (attrs === {} || !parent) {
+    return !!parent;
+  }
+	return parent.node.hasMarkup(type, attrs);
+}
+
+function toggleList(nodeType, itemType) {
+  return (state, dispatch, view) => {
+    const isActive = nodeActive(state, nodeType);
+    if (isActive) {
+      return liftListItem(itemType)(state, dispatch, view);
+    }
+    return wrapInList(nodeType)(state, dispatch, view);
+  }
+}
+
+function listItem(nodeType, itemType) {
+  let cmd = toggleList(nodeType, itemType);
+  return new MenuItem({
+    run: cmd,
+    active: state => nodeActive(state, nodeType, {}),
+    enable: state => cmd(state),
+  });
+}
+// 处理如何生成blockItem
+function toggleBlockType(type, toggletype, attrs = {}) {
+	return (state, dispatch, view) => {
+		const isActive = nodeActive(state, type, attrs)
+		if (isActive) {
+			return setBlockType(toggletype)(state, dispatch, view)
+		}
+		return setBlockType(type, attrs)(state, dispatch, view)
+	}
+}
+// FIXME: 尽管一个BlockTypeItem已经在内部拥有一个决定active的函数了,toggleBlockType
+// 仍然使用了自己的active函数, 可能会引起不一致的行为
+function blockTypeItem(nodeType, toggleType, options) {
+  let cmd = toggleBlockType(nodeType, toggleType, options.attrs);
+  return new MenuItem({
+    run: cmd,
+    enable: state => cmd(state),
+    active: state => nodeActive(state, nodeType, options.attrs),
+    // active solution comes from prosemirror-menu,
+
+    // active(state) {
+    //   let {$from, to, node} = state.selection
+    //   if (node) return node.hasMarkup(nodeType, options.attrs)
+    //   return to <= $from.end() && $from.parent.hasMarkup(nodeType, options.attrs)
+    // }
+  });
+}
+// wrap item
+function toggleWrap(type) {
+	return (state, dispatch, view) => {
+		const isActive = nodeActive(state, type)
+
+		if (isActive) {
+			return lift(state, dispatch)
+		}
+
+		return wrapIn(type)(state, dispatch, view)
+	}
+}
+
+function wrapItem(type) {
+  let cmd = toggleWrap(type);
+  return new MenuItem({
+    run: cmd,
+    active: state => nodeActive(state, type),
+    enable: state => cmd(state)
+  })
+}
+// linkItem
+function updateMark(type, attrs) {
+  return (state, dispatch) => {
+		const { from, to } = state.selection;
+		return dispatch(state.tr.addMark(from, to, type.create(attrs)));
+	}
+}
+function removeMark(type) {
+  return (state, dispatch) => {
+		const { from, to } = state.selection
+		return dispatch(state.tr.removeMark(from, to, type))
+	}
+}
+
+function linkMarkItem(markType) {
+  return new MenuItem({
+    active: state => markActive(state, markType),
+    enable: state => !state.selection.empty,
+    run: (state, dispatch, attrs) => {
+      if (attrs.href) {
+        return updateMark(markType, attrs)(state, dispatch);
+      }  
+      return removeMark(markType)(state, dispatch);
+    }
+  });
+}
+/******************export item*********************************************  */
 export let undoItem = new MenuItem({
   run: undo,
   enable: state => undo(state),
@@ -104,8 +210,17 @@ export let redoItem = new MenuItem({
   enable: state => redo(state),
 });
 
+
 export let boldItem = markItem(schema.marks.strong);
 export let italicItem = markItem(schema.marks.em);
-export let codeItem = markItem(schema.marks.code);
+// export let codeItem = markItem(schema.marks.code);
 export let underlineItem = markItem(schema.marks.underline);
 export let strikeItem = markItem(schema.marks.strike);
+export let bulletListItem = listItem(schema.nodes.bullet_list, schema.nodes.list_item);
+// FIXME:: there is a bug with orderlist, when click an order list, it doesn't toggle actived,
+// it's supposed to relate to toggleMark and markActive
+export let orderListItem = listItem(schema.nodes.order_list, schema.nodes.list_item);
+export let headingItem = blockTypeItem(schema.nodes.heading, schema.nodes.paragraph, {attrs:{level: 2}});
+export let codeItem = blockTypeItem(schema.nodes.code_block, schema.nodes.paragraph, {});
+export let blockQuoteItem = wrapItem(schema.nodes.blockquote, schema.nodes.paragraph);
+export let linkItem = linkMarkItem(schema.marks.link);

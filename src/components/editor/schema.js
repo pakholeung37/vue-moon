@@ -116,18 +116,18 @@ export const nodes = {
       return node.attrs.order == 1 ? ["ol", 0] : ["ol", {start: node.attrs.order}, 0]
     }
   },
+  bullet_list: {
+    content: 'list_item+',
+    group: 'block',
+    parseDOM: [{tag: "ul"}],
+    toDOM() { return ["ul", 0] }
+  },
   list_item: {
     content: 'paragraph block*',
     group: 'block',
     parseDOM: [{tag: "li"}],
     toDOM() { return ["li", 0] },
     defining: true
-  },
-  bullet_list: {
-    content: 'list_item+',
-		group: 'block',
-    parseDOM: [{tag: "ul"}],
-    toDOM() { return ["ul", 0] }
   },
 }
 

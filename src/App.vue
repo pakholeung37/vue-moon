@@ -3,16 +3,11 @@
     <div class="container">
       <editor class="editor">
         <div slot="content">
-          <h1>This is h1</h1>
-          <h2>This is h2</h2>
-          <h3>This is h3</h3>
-          <h4>This is h4</h4>
-          <h5>This is h5</h5>
-          <h6>This is h6</h6>
+          <h2>This is heading</h2>
           <p><u>this is under line.</u></p>          
           <p><strong>this is bold.</strong></p>
           <p><em>this is italic</em></p>
-          <p><code>this is code.</code></p>
+          <p><a href="www.baidu.com">this is a link</a></p>
           <p>example paragraph, Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Sed posuere consectetur est at lobortis. Cras mattis consectetur purus sit amet fermentum.</p>
           <blockquote><p><strong> strong in block quote. Nullam quis risus eget urna mollis ornare vel eu leo.</strong> Nullam id dolor id nibh ultricies vehicula ut id elit.</p></blockquote>
           <pre><code>code Block</code></pre>
@@ -50,8 +45,18 @@ export default {
   margin: 20px auto;
   max-width: 720px;
   & .ProseMirror {
-  outline: none;
+    outline: none;
+    & img {
+      max-width: 100%;
+    }
+  }
+  & blockquote {
+    margin: 1em 0;
+    padding-left: 1em;
+    color: #646464;
+    border-left: 3px solid #d3d3d3;
+  }
 }
-}
+
 
 </style>

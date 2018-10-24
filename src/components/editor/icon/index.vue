@@ -24,16 +24,13 @@ export default {
   position: relative;
   display: inline-block;
   vertical-align: middle;
-  width: 0.8em;
-  height: 0.8em;
-  margin: 0 0.3em;
-
   & .icon-svg {
-  width: 1em;
-  height: 1em;
+  width: 20px;
+  height: 20px;
   display: inline-block;
   vertical-align: top;
-}
+  fill: rgba($color: #9ba9ac, $alpha: 1);
+  }
 }
 
 </style>
