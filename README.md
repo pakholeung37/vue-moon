@@ -2,6 +2,8 @@
 A rich-text editor base on prosemirror and Vue
 基于Prosemirror和Vue的富文本编辑器项目
 
+###Demo
+http://108.160.131.205/
 ### what it can do
 + 响应式更新menubar状态
 + 部分markdown输入适应
