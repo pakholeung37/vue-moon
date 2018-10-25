@@ -1,8 +1,8 @@
 import { undo, redo } from 'prosemirror-history';
 import { toggleMark, setBlockType, wrapIn, lift } from 'prosemirror-commands';
 import { wrapInList, liftListItem } from 'prosemirror-schema-list';
-import { findParentNode } from 'prosemirror-utils'
-
+import { findParentNode } from 'prosemirror-utils';
+import {NodeSelection} from 'prosemirror-state';
 import { schema }from './schema';
 
 // 我设计menuItem的初衷是为了能让图标变得相应式的,在view层调用dispatchtransaction
@@ -187,7 +187,7 @@ function removeMark(type) {
 	}
 }
 
-function linkMarkItem(markType) {
+function insertLinkItem(markType) {
   return new MenuItem({
     active: state => markActive(state, markType),
     enable: state => !state.selection.empty,
@@ -198,6 +198,26 @@ function linkMarkItem(markType) {
       return removeMark(markType)(state, dispatch);
     }
   });
+}
+// deal with insertImageItem
+function canInsert(state, nodeType) {
+  let $from = state.selection.$from;
+  for (let d = $from.depth; d >= 0; d--) {
+    let index = $from.index(d);
+    if ($from.node(d).canReplaceWith(index, index, nodeType)) return true;
+  }
+  return false;
+}
+
+function insertImageItem(nodeType) {
+  return new MenuItem({
+    enable: state => canInsert(state, nodeType),
+    run: (state, _, view, attrs) => {
+      if (state.selection instanceof NodeSelection && state.selection.node.type == nodeType)
+        attrs = state.selection.node.attrs;
+      view.dispatch(view.state.tr.replaceSelectionWith(nodeType.createAndFill(attrs)));
+    },
+  })
 }
 /******************export item*********************************************  */
 export let undoItem = new MenuItem({
@@ -223,4 +243,5 @@ export let orderListItem = listItem(schema.nodes.order_list, schema.nodes.list_i
 export let headingItem = blockTypeItem(schema.nodes.heading, schema.nodes.paragraph, {attrs:{level: 2}});
 export let codeItem = blockTypeItem(schema.nodes.code_block, schema.nodes.paragraph, {});
 export let blockQuoteItem = wrapItem(schema.nodes.blockquote, schema.nodes.paragraph);
-export let linkItem = linkMarkItem(schema.marks.link);
+export let linkItem = insertLinkItem(schema.marks.link);
+export let imageItem = insertImageItem(schema.nodes.image);

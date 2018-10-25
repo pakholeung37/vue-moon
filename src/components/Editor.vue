@@ -51,7 +51,9 @@
         <icon name="link"></icon>
       </button>
       <button
-        class="menubar-btn">
+        class="menubar-btn"
+        :disabled="!isImageEnabled"
+        @click="showImagePrompt(menuItems.imageItem)">
         <icon name="photo"></icon>
       </button>
       <button
@@ -104,7 +106,7 @@
 <script>
 import { createEditor } from './editor/index.js';
 
-import Icon from './editor/icon/index.vue';
+import Icon from './icon/index.vue';
 
 export default {
   components: {
@@ -140,6 +142,8 @@ export default {
     // Link
     isLinkActived: ASEfactory('link', 'actived'),
     isLinkEnabled: ASEfactory('link', 'enabled'),
+    // ImageItem
+    isImageEnabled: ASEfactory('image', 'enabled'),
     // bulletListItem
     isBulletListActived: ASEfactory('bulletList', 'actived'),
     isBulletListEnabled: ASEfactory('bulletList', 'enabled'),
@@ -191,6 +195,17 @@ export default {
         const href = prompt('link to:');
         if (href !== null) {
           item.run(this.view.state, this.view.dispatch, { href });
+        }
+        this.view.focus();
+      }
+    },
+    showImagePrompt(item) {
+      console.log(item);
+      if(item.actived) item.run(this.view.state, this.view.dispatch, { src: ''});
+      else {
+        const src = prompt('src:');
+        if (src !== null) {
+          item.run(this.view.state, this.view.dispatch, this.view, { src });
         }
         this.view.focus();
       }

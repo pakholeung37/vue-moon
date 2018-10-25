@@ -15,6 +15,7 @@ import {
   headingItem,
   blockQuoteItem,
   linkItem,
+  imageItem,
 } from './menuItem';
 import { createMenuBarPlugin } from './menubar';
 import { createBasePlugins } from './plugins';
@@ -33,6 +34,7 @@ export function createEditor(root, dom) {
     headingItem,
     blockQuoteItem,
     linkItem,
+    imageItem,
   }
   // menubarPlugins主要是负责menuItem状态更新的任务
   let menuBarPlugins = createMenuBarPlugin(menuItems);
