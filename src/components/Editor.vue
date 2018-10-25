@@ -182,14 +182,12 @@ export default {
     },
     exec(item) {
       //excute function when it is ready;
-      console.log(item);
       let view = this.view;
       view.focus();
       if(item && item.run) item.run(view.state, view.dispatch, view);
       return this;
     },
     showLinkPrompt(item) {
-      console.log(item);
       if(item.actived) item.run(this.view.state, this.view.dispatch, { href: ''});
       else {
         const href = prompt('link to:');
@@ -200,7 +198,6 @@ export default {
       }
     },
     showImagePrompt(item) {
-      console.log(item);
       if(item.actived) item.run(this.view.state, this.view.dispatch, { src: ''});
       else {
         const src = prompt('src:');

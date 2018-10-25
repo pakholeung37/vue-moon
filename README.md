@@ -2,6 +2,9 @@
 A rich-text editor base on prosemirror and Vue
 基于Prosemirror和Vue的富文本编辑器项目
 
+###Demo
+http://108.160.131.205/ 
+
 ### what it can do
 + 响应式更新menubar状态
 + 部分markdown输入适应
@@ -51,12 +54,10 @@ src/
 不像draft和slate能基于immutable, 深度整合于react, 尽管prosemirror的model仍然是immutable, 但是我只需要一款可定制view层的编辑器. 最不济, 我要定制我的menubar. 遗憾的是, 这就是这个项目运作方式, 所有伟大的任务都是由prosemirror完成的, 而vue只是从中介入它的view层, 利用prosemirror自有的api, 更新每个menuItem的状态.
 
 下面是prosemirror的data-flow
-EditorView -> DOM event -> Transaction -> new EditorState
-.......^............................................................................|
-    .......|.............................................................................|
-    ------^----------------------------------------------------------------
-editorView依靠state生成DOM, DOM事件产生Transaction, 应用于当前state生成一个新的state, 如此循环, 本项目运行方式在editor每次更新view时, 通过一个plguin暴露的update()函数, 去更新自己的menuItems的state.
 
+EditorView -> DOM event -> Transaction -> new EditorState
+
+editorView依靠state生成DOM, DOM事件产生Transaction, 应用于当前state生成一个新的state, 如此循环, 本项目运行方式在editor每次更新view时, 通过一个plguin暴露的update()函数, 去更新自己的menuItems的state.
 
 来看menuItem的class就知道这个menuItem是用来干嘛了
 ```
